@@ -14,7 +14,7 @@ namespace ECommerce.Application.Mapping
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
             CreateMap<UpdateUserDto, User>();
             CreateMap<UpdateUserDto, User>()
-            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
 
             // Product
@@ -22,7 +22,15 @@ namespace ECommerce.Application.Mapping
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name));
             CreateMap<CreateProductDto, Product>();
             CreateMap<UpdateProductDto, Product>()
-            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            // Category
+            CreateMap<Category, CategoryDto>()
+            .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src => src.Products.Count));
+
+            CreateMap<CreateCategoryDto, Category>();
+            CreateMap<UpdateCategoryDto, Category>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
 
         }

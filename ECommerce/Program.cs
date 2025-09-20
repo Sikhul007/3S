@@ -44,13 +44,16 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Register repositories
+// Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 // Services
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+
 
 
 
