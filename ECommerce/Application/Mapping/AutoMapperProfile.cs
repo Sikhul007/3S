@@ -11,12 +11,20 @@ namespace ECommerce.Application.Mapping
             // User
             CreateMap<User, UserDto>();
             CreateMap<CreateUserDto, User>()
-                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()); // hash separately
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
+            CreateMap<UpdateUserDto, User>();
             CreateMap<UpdateUserDto, User>()
             .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
 
-            // Later you’ll add Product & Category mappings here
+            // Product
+            CreateMap<Product, ProductDto>()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name));
+            CreateMap<CreateProductDto, Product>();
+            CreateMap<UpdateProductDto, Product>()
+            .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
         }
     }
 }

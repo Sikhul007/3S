@@ -6,6 +6,7 @@ using ECommerce.Infrastructure.Security;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Identity;
 
 namespace ECommerce.Controllers
 {
@@ -16,33 +17,31 @@ namespace ECommerce.Controllers
         private readonly IUserService _userService;
         private readonly JwtService _jwtService;
         private readonly IMapper _mapper;
+        private readonly PasswordHasher<User> _passwordHasher; // add
 
         public AuthController(IUserService userService, JwtService jwtService, IMapper mapper)
         {
             _userService = userService;
             _jwtService = jwtService;
             _mapper = mapper;
+            _passwordHasher = new PasswordHasher<User>(); // init
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
-            // Check if email exists
             var existing = await _userService.GetByEmailAsync(dto.Email);
             if (existing != null)
                 return BadRequest("Email already registered");
-
-            // Hash password
-            using var sha = SHA256.Create();
-            var hash = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(dto.Password)));
 
             var user = new User
             {
                 Username = dto.Username,
                 Email = dto.Email,
-                PasswordHash = hash,
                 Role = "User"
             };
+
+            user.PasswordHash = _passwordHasher.HashPassword(user, dto.Password);
 
             await _userService.CreateAsync(user);
 
@@ -55,11 +54,9 @@ namespace ECommerce.Controllers
             var user = await _userService.GetByEmailAsync(dto.Email);
             if (user == null) return Unauthorized("Invalid credentials");
 
-            // Verify password
-            using var sha = SHA256.Create();
-            var hash = Convert.ToBase64String(sha.ComputeHash(Encoding.UTF8.GetBytes(dto.Password)));
-
-            if (hash != user.PasswordHash) return Unauthorized("Invalid credentials");
+            var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, dto.Password);
+            if (result == PasswordVerificationResult.Failed)
+                return Unauthorized("Invalid credentials");
 
             var token = _jwtService.GenerateToken(user);
 

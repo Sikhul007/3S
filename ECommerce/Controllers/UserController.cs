@@ -66,8 +66,8 @@ namespace ECommerce.Controllers
             return CreatedAtAction(nameof(GetById), new { id = userDto.Id }, userDto);
         }
 
-        // PUT: api/user/update/{id}
-        [HttpPatch("update/{id}")]
+        // PATCH: api/user/update/{id}
+        [HttpPut("update/{id}")]
         public async Task<IActionResult> Update(int id, UpdateUserDto dto)
         {
             var user = await _userService.GetByIdAsync(id);
