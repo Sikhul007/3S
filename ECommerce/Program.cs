@@ -1,34 +1,72 @@
+using ECommerce.Application.Interfaces;
+using ECommerce.Application.Mapping;
+using ECommerce.Application.Services;
+using ECommerce.Domain.Repositories;
+using ECommerce.Infrastructure.Data;
+using ECommerce.Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
-namespace ECommerce
+
+var builder = WebApplication.CreateBuilder(args);
+
+
+// JWT Config
+builder.Services.AddAuthentication(options =>
 {
-    public class Program
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
+        )
+    };
+});
 
-            // Add services to the container.
+// Register JwtService
+builder.Services.AddScoped<ECommerce.Infrastructure.Security.JwtService>();
 
-            builder.Services.AddControllers();
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
+builder.Services.AddControllers();
 
-            var app = builder.Build();
+// Add DbContext with SQL Server
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.MapOpenApi();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
+// Register repositories
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+// Services
+builder.Services.AddScoped<IUserService, UserService>();
 
 
-            app.MapControllers();
+// AutoMapper
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
-            app.Run();
-        }
-    }
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
