@@ -11,7 +11,7 @@ namespace ECommerce.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")] // Only admins can access these endpoints
+    [Authorize(Roles = "Admin")] 
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -23,8 +23,7 @@ namespace ECommerce.Controllers
             _mapper = mapper;
         }
 
-        // GET: api/user/all
-        [HttpGet("all")]
+        [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var users = await _userService.GetAllAsync();
@@ -32,8 +31,7 @@ namespace ECommerce.Controllers
             return Ok(userDtos);
         }
 
-        // GET: api/user/getbyid/{id}
-        [HttpGet("getbyid/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var user = await _userService.GetByIdAsync(id);
@@ -41,22 +39,18 @@ namespace ECommerce.Controllers
             return Ok(_mapper.Map<UserDto>(user));
         }
 
-        // POST: api/user/createuser
-        [HttpPost("createuser")]
+        [HttpPost]
         public async Task<IActionResult> Create(CreateUserDto dto)
         {
-            // Check if email already exists
             var existing = await _userService.GetByEmailAsync(dto.Email);
             if (existing != null)
                 return BadRequest("Email is already registered.");
 
-            // Hash password
             using var sha = SHA256.Create();
             var passwordHash = Convert.ToBase64String(
                 sha.ComputeHash(Encoding.UTF8.GetBytes(dto.Password))
             );
 
-            // Map DTO → User entity
             var user = _mapper.Map<User>(dto);
             user.PasswordHash = passwordHash;
 
@@ -66,8 +60,7 @@ namespace ECommerce.Controllers
             return CreatedAtAction(nameof(GetById), new { id = userDto.Id }, userDto);
         }
 
-        // PATCH: api/user/update/{id}
-        [HttpPut("update/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, UpdateUserDto dto)
         {
             var user = await _userService.GetByIdAsync(id);
@@ -86,9 +79,7 @@ namespace ECommerce.Controllers
             return Ok(_mapper.Map<UserDto>(updatedUser));
         }
 
-
-        // DELETE: api/user/delete/{id}
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var user = await _userService.GetByIdAsync(id);

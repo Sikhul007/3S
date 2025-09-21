@@ -7,7 +7,6 @@
         public string? Description { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        // Navigation
         public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

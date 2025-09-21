@@ -17,14 +17,14 @@ namespace ECommerce.Controllers
         private readonly IUserService _userService;
         private readonly JwtService _jwtService;
         private readonly IMapper _mapper;
-        private readonly PasswordHasher<User> _passwordHasher; // add
+        private readonly PasswordHasher<User> _passwordHasher; 
 
         public AuthController(IUserService userService, JwtService jwtService, IMapper mapper)
         {
             _userService = userService;
             _jwtService = jwtService;
             _mapper = mapper;
-            _passwordHasher = new PasswordHasher<User>(); // init
+            _passwordHasher = new PasswordHasher<User>();
         }
 
         [HttpPost("register")]

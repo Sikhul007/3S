@@ -21,8 +21,7 @@ namespace ECommerce.Controllers
             _mapper = mapper;
         }
 
-        // POST: api/products/createproduct
-        [HttpPost("createproduct")]
+        [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(CreateProductDto dto)
         {
@@ -31,8 +30,7 @@ namespace ECommerce.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, _mapper.Map<ProductDto>(created));
         }
 
-        // GET: api/products/allproducts
-        [HttpGet("allproducts")]
+        [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] int? categoryId, [FromQuery] decimal? minPrice, [FromQuery] decimal? maxPrice, [FromQuery] int page = 1, [FromQuery] int limit = 10)
         {
             var products = await _service.GetFilteredAsync(categoryId, minPrice, maxPrice, page, limit);
@@ -40,8 +38,7 @@ namespace ECommerce.Controllers
         }
 
 
-        // GET: api/products/getbyid/5
-        [HttpGet("getbyid/{id}")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             var product = await _service.GetByIdAsync(id);
@@ -50,8 +47,7 @@ namespace ECommerce.Controllers
         }
 
 
-        // PUT: api/products/updateproduct/5
-        [HttpPut("updateproduct/{id}")]
+        [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, UpdateProductDto dto)
         {
@@ -65,8 +61,7 @@ namespace ECommerce.Controllers
         }
 
 
-        // DELETE: api/products/deleteproduct/5
-        [HttpDelete("deleteproduct/{id}")]
+        [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -77,7 +72,6 @@ namespace ECommerce.Controllers
             return NoContent();
         }
 
-        // GET: api/products/search?q=keyword
         [HttpGet("search")]
         public async Task<IActionResult> Search([FromQuery] string q)
         {

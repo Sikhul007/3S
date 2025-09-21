@@ -27,7 +27,6 @@ namespace ECommerce.Application.Mapping
             // Category
             CreateMap<Category, CategoryDto>()
             .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src => src.Products.Count));
-
             CreateMap<CreateCategoryDto, Category>();
             CreateMap<UpdateCategoryDto, Category>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));

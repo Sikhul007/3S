@@ -12,7 +12,7 @@
     {
         public string Username { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty; // plain password (we’ll hash later)
+        public string Password { get; set; } = string.Empty;
     }
 
     public class UpdateUserDto
